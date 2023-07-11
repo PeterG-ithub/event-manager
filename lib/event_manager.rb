@@ -58,6 +58,12 @@ def time_targeting(reg_date, hours)
   hours[hour] += 1
 end
 
+def day_targeting(reg_date, days)
+  day = Date.strptime(reg_date, '%m/%d/%y %H:%M').wday
+  days[day] ||= 0
+  days[day] += 1
+end
+
 puts 'EventManager initialized.'
 
 contents = CSV.open(
@@ -70,6 +76,7 @@ template_letter = File.read('form_letter.erb')
 erb_template = ERB.new template_letter
 
 hours = {}
+days = {}
 
 contents.each do |row|
   id = row[0]
@@ -79,12 +86,14 @@ contents.each do |row|
   
 
   hour = time_targeting(row[:regdate], hours)
-  #legislators = legislators_by_zipcode(zipcode)
+  day = day_targeting(row[:regdate], days)
+  # legislators = legislators_by_zipcode(zipcode)
 
-  #p "#{name} #{zipcode} #{phone_number}"
-  #form_letter = erb_template.result(binding)
+  # p "#{name} #{zipcode} #{phone_number}"
+  # form_letter = erb_template.result(binding)
 
-  #save_thank_you_letter(id,form_letter)
+  # save_thank_you_letter(id,form_letter)
 end
 
 p hours.max_by { |key, value| value }[0]
+p Date::DAYNAMES[days.max_by { |key, value| value }[0]]
