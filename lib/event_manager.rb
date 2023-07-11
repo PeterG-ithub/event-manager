@@ -52,6 +52,12 @@ def clean_phone_number(phone_number)
   end
 end
 
+def time_targeting(reg_date, hours)
+  hour = Time.strptime(reg_date, '%m/%d/%y %H:%M').hour
+  hours[hour] ||= 0
+  hours[hour] += 1
+end
+
 puts 'EventManager initialized.'
 
 contents = CSV.open(
@@ -63,15 +69,22 @@ contents = CSV.open(
 template_letter = File.read('form_letter.erb')
 erb_template = ERB.new template_letter
 
+hours = {}
+
 contents.each do |row|
   id = row[0]
   name = row[:first_name]
   zipcode = clean_zipcode(row[:zipcode])
   phone_number = clean_phone_number(row[:homephone])
+  
+
+  hour = time_targeting(row[:regdate], hours)
   #legislators = legislators_by_zipcode(zipcode)
 
-  p "#{name} #{zipcode} #{phone_number}"
+  #p "#{name} #{zipcode} #{phone_number}"
   #form_letter = erb_template.result(binding)
 
   #save_thank_you_letter(id,form_letter)
 end
+
+p hours.max_by { |key, value| value }[0]
