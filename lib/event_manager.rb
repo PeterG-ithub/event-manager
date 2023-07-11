@@ -31,6 +31,27 @@ def save_thank_you_letter(id,form_letter)
   end
 end
 
+def clean_phone_number(phone_number)
+  # If the phone number is less than 10 digits, assume that it is a bad number
+  # If the phone number is 10 digits, assume that it is good
+  # If the phone number is 11 digits and the first number is 1, trim the 1 and use the remaining 10 digits
+  # If the phone number is 11 digits and the first number is not 1, then it is a bad number
+  # If the phone number is more than 11 digits, assume that it is a bad number
+
+  digits_only = phone_number.gsub(/\D/, '')
+  if digits_only.length < 10
+    "Bad number: #{digits_only}"
+  elsif digits_only.length > 11
+    "Bad number: #{digits_only}"
+  elsif digits_only.length == 11 && digits_only[0] != '1'
+    "Bad number: #{digits_only}"
+  elsif digits_only.length == 11 && digits_only[0] == '1'
+    digits_only[1..10]
+  else
+    digits_only
+  end
+end
+
 puts 'EventManager initialized.'
 
 contents = CSV.open(
@@ -46,9 +67,11 @@ contents.each do |row|
   id = row[0]
   name = row[:first_name]
   zipcode = clean_zipcode(row[:zipcode])
-  legislators = legislators_by_zipcode(zipcode)
+  phone_number = clean_phone_number(row[:homephone])
+  #legislators = legislators_by_zipcode(zipcode)
 
-  form_letter = erb_template.result(binding)
+  p "#{name} #{zipcode} #{phone_number}"
+  #form_letter = erb_template.result(binding)
 
-  save_thank_you_letter(id,form_letter)
+  #save_thank_you_letter(id,form_letter)
 end
